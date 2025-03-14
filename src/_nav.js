@@ -71,14 +71,34 @@ const getNavItems = () => {
       //user management
   {
     component: CNavGroup,
-    name: 'User Management',
+    name: 'Lectures',
     to: '/mattressSettings',
     icon: <FaUsers className="me-2" />,
     items: [
       {
         component: CNavItem,
-        name: 'Add User',
-        to: '/add-user',
+        name: 'Add Lecture',
+        to: '/add-video-lecture',
+      },
+      {
+        component: CNavItem,
+        name: 'User Management',
+        to: '/user-management',
+      }
+      
+    ],
+  },
+
+  {
+    component: CNavGroup,
+    name: 'Paper',
+    to: '/mattressSettings',
+    icon: <FaUsers className="me-2" />,
+    items: [
+      {
+        component: CNavItem,
+        name: 'Add Lecture',
+        to: '/add-paper',
       },
       {
         component: CNavItem,

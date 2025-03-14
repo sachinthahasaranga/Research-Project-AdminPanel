@@ -93,6 +93,7 @@ const AddTableHistory = React.lazy(() => import('./views/pages/table-history/Add
 
 const AddVideoLecture = React.lazy(() => import('./views/pages/video-lecture/AddVideoLecture'))
 
+const AddPaper = React.lazy(() => import('./views/pages/paper/AddPaper'))
 
 
 const routes = [
@@ -183,7 +184,7 @@ const routes = [
   { path: '/add-history', name: 'Inbound - Outbound', element: AddTableHistory },
 
   { path: '/add-video-lecture', name: 'video lecture', element: AddVideoLecture },
-
+  { path: '/add-paper', name: 'video lecture', element: AddPaper },
 
 ]
 
