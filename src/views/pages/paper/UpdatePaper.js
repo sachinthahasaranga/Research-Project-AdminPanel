@@ -217,12 +217,10 @@ const UpdatePaper = () => {
       if (result.isConfirmed) {
         try {
           const updatedTitles = [...questionTitles];
-  
-          // ✅ Ensure titleIndex is valid before accessing "questions"
+            
           if (titleIndex !== undefined && titleIndex < updatedTitles.length) {
             const titleToDelete = updatedTitles[titleIndex];
   
-            // ✅ Delete all questions for this question title (if they exist in DB)
             if (titleToDelete.questions && titleToDelete.questions.length > 0) {
               await Promise.all(
                 titleToDelete.questions.map(async (q) => {
@@ -234,7 +232,6 @@ const UpdatePaper = () => {
             }
           }
   
-          // ✅ Now delete the question title itself (only if it exists in DB)
           if (titleId) {
             await apiClient.delete(`/api/question-titles/${titleId}`);
           }
