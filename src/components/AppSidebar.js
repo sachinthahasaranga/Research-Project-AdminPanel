@@ -43,7 +43,7 @@ const AppSidebar = () => {
           {/*<CIcon customClassName="sidebar-brand-full" icon={logo} height={32} />
           <CIcon customClassName="sidebar-brand-narrow" icon={sygnet} height={32} />*/}
           <div customClassName="sidebar-brand-full" >
-            Stock Management System
+            English Hub
           </div>
           <CSidebarBrand to="/"> 
           </CSidebarBrand>
