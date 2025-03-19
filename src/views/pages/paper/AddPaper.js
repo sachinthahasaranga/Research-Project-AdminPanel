@@ -150,7 +150,7 @@ const AddPaper = () => {
       });
 
       // Redirect after success
-      setTimeout(() => navigate("/papers"), 2000);
+      setTimeout(() => navigate("/paperlist"), 2000);
     } catch (error) {
       console.error("Error adding paper:", error);
       Swal.fire({
