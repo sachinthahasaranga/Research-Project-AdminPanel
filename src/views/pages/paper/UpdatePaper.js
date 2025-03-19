@@ -13,6 +13,7 @@ import {
 import { useNavigate, useParams } from "react-router-dom";
 import apiClient from "../../../api";
 import Swal from "sweetalert2";
+import { FaTrash } from "react-icons/fa";
 
 const UpdatePaper = () => {
   const { id } = useParams(); // Get paper ID from URL
@@ -175,9 +176,59 @@ const UpdatePaper = () => {
     }
   };
 
+  //delete title
+  const deleteQuestionTitle = async (titleId) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "This will delete the question title and its questions!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await apiClient.delete(`/api/question-titles/${titleId}`);
+          setQuestionTitles(questionTitles.filter((title) => title._id !== titleId));
+          Swal.fire("Deleted!", "The question title has been deleted.", "success");
+        } catch (error) {
+          console.error("Error deleting question title:", error);
+          Swal.fire("Error!", "Failed to delete question title.", "error");
+        }
+      }
+    });
+  };
+
+  //  DELETE QUESTION
+  const deleteQuestion = async (titleIndex, questionId) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "This will delete the question permanently!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await apiClient.delete(`/api/questions/${questionId}`);
+          const updatedTitles = [...questionTitles];
+          updatedTitles[titleIndex].questions = updatedTitles[titleIndex].questions.filter((q) => q._id !== questionId);
+          setQuestionTitles(updatedTitles);
+          Swal.fire("Deleted!", "The question has been deleted.", "success");
+        } catch (error) {
+          console.error("Error deleting question:", error);
+          Swal.fire("Error!", "Failed to delete question.", "error");
+        }
+      }
+    });
+  };
+
   return (
     <CRow>
-      <CCol xs={12} md={12} lg={10} className="mx-auto">
+      <CCol xs={12} md={12} lg={11} className="mx-auto">
         <CCard className="mb-4">
           <CCardHeader>
             <strong>Update Question Paper</strong>
@@ -265,7 +316,16 @@ const UpdatePaper = () => {
               {/* Question Titles & Questions */}
               {questionTitles.map((qt, titleIndex) => (
                 <div key={qt._id} className="border p-3 mb-3">
-                  <CFormInput 
+                <CRow>
+                <CCol className="d-flex justify-content-end">
+                    <FaTrash
+                    style={{ color: "red", cursor: "pointer" }}
+                    onClick={() => deleteQuestionTitle(qt._id)}
+                    />
+                </CCol>
+                </CRow>
+                    
+                <CFormInput 
                   type="text" 
                   name="title" 
                   placeholder="Question Title" 
@@ -273,8 +333,19 @@ const UpdatePaper = () => {
                   onChange={(e) => handleQuestionTitleChange(titleIndex, e)} 
                   required label="Title" 
                   className="mb-2" />
+
+            
                   {qt.questions.map((q, questionIndex) => (
+                    
                     <div key={q._id} className="border p-2 mb-2">
+                    <CRow>
+                        <CCol className="d-flex justify-content-end">
+                            <FaTrash
+                            style={{ color: "red", cursor: "pointer" }}
+                            onClick={() => deleteQuestion(titleIndex, q._id)}
+                            />
+                        </CCol>
+                    </CRow>                        
                       <CFormInput type="text" 
                       name="questionTitle" 
                       placeholder="Question" 
