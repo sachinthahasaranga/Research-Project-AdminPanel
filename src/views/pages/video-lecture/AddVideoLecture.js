@@ -1,13 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
-  CCard,
-  CCardBody,
-  CCardHeader,
-  CCol,
-  CRow,
-  CForm,
-  CFormInput,
-  CButton,
+  CCard, CCardBody, CCardHeader, CCol, CRow, CForm,
+  CFormInput, CButton, CFormSelect
 } from "@coreui/react";
 import { useNavigate } from "react-router-dom";
 import apiClient from "../../../api";
@@ -21,10 +15,42 @@ const AddVideoLecture = () => {
     totalTime: "",
     difficultyLevel: "",
   });
+
   const [videoFile, setVideoFile] = useState(null);
   const [imageFile, setImageFile] = useState(null);
+  const [categories, setCategories] = useState([]); // Store categories with categoryType = "paper"
+  const [difficultyLevels, setDifficultyLevels] = useState([]); // Store difficulty levels
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  // Fetch categories where categoryType = "paper"
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await apiClient.get("/api/ctgry/");
+        const filteredCategories = response.data.filter(category => category.categoryType === "lecture");
+        setCategories(filteredCategories);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  // Fetch difficulty levels
+  useEffect(() => {
+    const fetchDifficultyLevels = async () => {
+      try {
+        const response = await apiClient.get("/api/difficulty-levels/");
+        setDifficultyLevels(response.data);
+      } catch (error) {
+        console.error("Error fetching difficulty levels:", error);
+      }
+    };
+
+    fetchDifficultyLevels();
+  }, []);
 
   // Handle text input changes
   const handleChange = (e) => {
@@ -45,7 +71,6 @@ const AddVideoLecture = () => {
     event.preventDefault();
     setLoading(true);
 
-    // Create FormData to handle file uploads
     const data = new FormData();
     data.append("lectureTitle", formData.lectureTitle);
     data.append("lectureDescription", formData.lectureDescription);
@@ -57,13 +82,9 @@ const AddVideoLecture = () => {
 
     try {
       await apiClient.post("/api/video-lectures/", data, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2N2M3ZGU2MDMyZTFjMjA1MGQ4YWExNWIiLCJpYXQiOjE3NDE4NDg4MTgsImV4cCI6MTc0MjQ1MzYxOH0.bSvfcBAeTSMkyFsPXLSCGGgMBD3ygbBwH-FY2W7BvQo"
-        },
+        headers: { "Content-Type": "multipart/form-data" },
       });
 
-      // Show success alert
       Swal.fire({
         icon: "success",
         title: "Video Lecture Added!",
@@ -72,12 +93,9 @@ const AddVideoLecture = () => {
         timer: 2000,
       });
 
-      // Redirect after success
       setTimeout(() => navigate("/video-lectures"), 2000);
     } catch (error) {
       console.error("Error adding video lecture:", error);
-
-      // Show error alert
       Swal.fire({
         icon: "error",
         title: "Failed!",
@@ -91,13 +109,12 @@ const AddVideoLecture = () => {
 
   return (
     <CRow>
-      <CCol xs={12} md={10} lg={8} className="mx-auto">
+      <CCol xs={12} md={10} lg={11} className="mx-auto">
         <CCard className="mb-4">
-          <CCardHeader>
-            <strong>Add New Video Lecture</strong>
-          </CCardHeader>
+          <CCardHeader><strong>Add New Video Lecture</strong></CCardHeader>
           <CCardBody>
             <CForm onSubmit={handleSubmit}>
+
               {/* Lecture Title */}
               <CRow className="mb-3">
                 <CCol md={12}>
@@ -115,7 +132,7 @@ const AddVideoLecture = () => {
 
               {/* Lecture Description */}
               <CRow className="mb-3">
-                <CCol md={12}>
+                <CCol md={6}>
                   <CFormInput
                     type="text"
                     name="lectureDescription"
@@ -126,31 +143,41 @@ const AddVideoLecture = () => {
                     label="Lecture Description"
                   />
                 </CCol>
-              </CRow>
-
-              {/* Category & Difficulty Level */}
-              <CRow className="mb-3">
                 <CCol md={6}>
-                  <CFormInput
-                    type="text"
+                  <CFormSelect
                     name="categoryId"
-                    placeholder="Enter Category ID"
                     value={formData.categoryId}
                     onChange={handleChange}
                     required
-                    label="Category ID"
-                  />
+                    label="Select Category"
+                  >
+                    <option value="">-- Select Category --</option>
+                    {categories.map((category) => (
+                      <option key={category._id} value={category._id}>
+                        {category.categoryName}
+                      </option>
+                    ))}
+                  </CFormSelect>
                 </CCol>
-                <CCol md={6}>
-                  <CFormInput
-                    type="text"
+              </CRow>
+
+              {/* Difficulty Level Dropdown */}
+              <CRow className="mb-3">
+                <CCol md={12}>
+                  <CFormSelect
                     name="difficultyLevel"
-                    placeholder="Enter Difficulty Level ID"
                     value={formData.difficultyLevel}
                     onChange={handleChange}
                     required
-                    label="Difficulty Level ID"
-                  />
+                    label="Select Difficulty Level"
+                  >
+                    <option value="">-- Select Difficulty Level --</option>
+                    {difficultyLevels.map((level) => (
+                      <option key={level._id} value={level._id}>
+                        {level.difficultyName}
+                      </option>
+                    ))}
+                  </CFormSelect>
                 </CCol>
               </CRow>
 
@@ -206,6 +233,7 @@ const AddVideoLecture = () => {
                   Cancel
                 </CButton>
               </div>
+
             </CForm>
           </CCardBody>
         </CCard>

@@ -183,8 +183,8 @@ const routes = [
   { path: '/table-history', name: 'Inbound - Outbound', element: TableHistory },
   { path: '/add-history', name: 'Inbound - Outbound', element: AddTableHistory },
 
-  { path: '/add-video-lecture', name: 'video lecture', element: AddVideoLecture },
-  { path: '/add-paper', name: 'video lecture', element: AddPaper },
+  { path: '/add-video-lecture', name: 'Add Video Lecture', element: AddVideoLecture },
+  { path: '/add-paper', name: 'Add Paper', element: AddPaper },
 
 ]
 
