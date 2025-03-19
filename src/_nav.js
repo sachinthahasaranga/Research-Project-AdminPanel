@@ -82,8 +82,8 @@ const getNavItems = () => {
       },
       {
         component: CNavItem,
-        name: 'User Management',
-        to: '/user-management',
+        name: 'Lecture List',
+        to: '/lecturelist',
       }
       
     ],
@@ -92,18 +92,18 @@ const getNavItems = () => {
   {
     component: CNavGroup,
     name: 'Paper',
-    to: '/mattressSettings',
+    to: '/',
     icon: <FaUsers className="me-2" />,
     items: [
       {
         component: CNavItem,
-        name: 'Add Lecture',
+        name: 'Add Paper',
         to: '/add-paper',
       },
       {
         component: CNavItem,
-        name: 'User Management',
-        to: '/user-management',
+        name: 'Paper List',
+        to: '/paperlist',
       }
       
     ],
@@ -133,19 +133,19 @@ const getNavItems = () => {
     //Raw Materials
     {
       component: CNavGroup,
-      name: 'Raw Materials',
+      name: 'categories',
       to: '/mattressSettings',
       icon: <FaClipboardList className="me-2" />,
       items: [
         {
           component: CNavItem,
-          name: 'Add Raw Materials',
-          to: '/add-raw-material',
+          name: 'Add Category',
+          to: '/add-category',
         },
         {
           component: CNavItem,
-          name: 'Raw Materials Lists',
-          to: '/raw-material-inventory',
+          name: 'Category Lists',
+          to: '/categorylist',
         },
         
       ],

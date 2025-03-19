@@ -10,11 +10,14 @@ import {
   CButton,
   CFormSelect,
 } from "@coreui/react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import apiClient from "../../../api";
 import Swal from "sweetalert2";
 
-const AddPaper = () => {
+const UpdatePaper = () => {
+  const { id } = useParams(); // Get paper ID from URL
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
   const [paper, setPaper] = useState({
     paperTitle: "",
     recommendedAge: "",
@@ -23,38 +26,48 @@ const AddPaper = () => {
     categoryId: "",
   });
 
-  const [questionTitles, setQuestionTitles] = useState([
-    { title: "", assignMarks: "", questions: [{ questionText: "", answer: "", nlpRequired: 0 }] },
-  ]);
+  const [questionTitles, setQuestionTitles] = useState([]);
+  const [difficultyLevels, setDifficultyLevels] = useState([]);
+  const [categories, setCategories] = useState([]);
 
-  const [difficultyLevels, setDifficultyLevels] = useState([]); // Store difficulty levels
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
-  const [categories, setCategory] = useState([]);
-
-  
+  // Fetch paper details
   useEffect(() => {
-    const fetchDifficultyLevels = async () => {
+    const fetchPaper = async () => {
       try {
-        const response = await apiClient.get("/api/difficulty-levels/");
-        setDifficultyLevels(response.data);
+        const response = await apiClient.get(`/api/papers/${id}`, { withCredentials: true });
+        setPaper(response.data);
+        setQuestionTitles(response.data.questionTitles || []);
       } catch (error) {
-        console.error("Error fetching difficulty levels:", error);
+        console.error("Error fetching paper:", error);
       }
     };
 
+    fetchPaper();
     fetchDifficultyLevels();
-    fetchCategory();
-  }, []);
+    fetchCategories();
+  }, [id]);
 
-  const fetchCategory = async () => {
+  // Fetch difficulty levels
+  const fetchDifficultyLevels = async () => {
     try {
-      const response = await apiClient.get("/api/ctgry/");
-      setCategory(response.data);
+      const response = await apiClient.get("/api/difficulty-levels/", { withCredentials: true });
+      setDifficultyLevels(response.data);
     } catch (error) {
       console.error("Error fetching difficulty levels:", error);
     }
   };
+
+  // Fetch categories (only "paper" type)
+  const fetchCategories = async () => {
+    try {
+      const response = await apiClient.get("/api/ctgry/", { withCredentials: true });
+      const filteredCategories = response.data.filter((category) => category.categoryType === "paper");
+      setCategories(filteredCategories);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
+  };
+
   // Handle input changes for paper details
   const handlePaperChange = (e) => {
     setPaper({ ...paper, [e.target.name]: e.target.value });
@@ -67,12 +80,6 @@ const AddPaper = () => {
     setQuestionTitles(newTitles);
   };
 
-  const handleNlpChange = (titleIndex, questionIndex, e) => {
-    const newTitles = [...questionTitles];
-    newTitles[titleIndex].questions[questionIndex].nlpRequired = parseInt(e.target.value, 10);
-    setQuestionTitles(newTitles);
-  };
-
   // Handle changes in Questions
   const handleQuestionChange = (titleIndex, questionIndex, e) => {
     const newTitles = [...questionTitles];
@@ -80,32 +87,11 @@ const AddPaper = () => {
     setQuestionTitles(newTitles);
   };
 
-  // Add a new Question Title
-  const addQuestionTitle = () => {
-    setQuestionTitles([...questionTitles, { title: "", assignMarks: "", questions: [{ questionText: "", answer: "", nlpRequired: 0 }] }]);
-  };
-
-  // Remove a Question Title
-  const removeQuestionTitle = (index) => {
-    if (questionTitles.length > 1) {
-      setQuestionTitles(questionTitles.filter((_, i) => i !== index));
-    }
-  };
-
-  // Add a new Question under a Question Title
-  const addQuestion = (titleIndex) => {
+  // Handle NLP change
+  const handleNlpChange = (titleIndex, questionIndex, e) => {
     const newTitles = [...questionTitles];
-    newTitles[titleIndex].questions.push({ questionText: "", answer: "", nlpRequired: 0 });
+    newTitles[titleIndex].questions[questionIndex].nlpRequired = parseInt(e.target.value, 10);
     setQuestionTitles(newTitles);
-  };
-
-  // Remove a Question under a Question Title
-  const removeQuestion = (titleIndex, questionIndex) => {
-    const newTitles = [...questionTitles];
-    if (newTitles[titleIndex].questions.length > 1) {
-      newTitles[titleIndex].questions.splice(questionIndex, 1);
-      setQuestionTitles(newTitles);
-    }
   };
 
   // Handle form submission
@@ -114,36 +100,24 @@ const AddPaper = () => {
     setLoading(true);
 
     try {
-      // Step 1: Create Paper
-      const paperResponse = await apiClient.post("/api/papers/", paper);
-      const paperId = paperResponse.data.newPaper._id;
+      // Step 1: Update Paper
+      await apiClient.put(`/api/papers/${id}`, paper, { withCredentials: true });
 
-      // Step 2: Create Question Titles and Questions
+      // Step 2: Update Question Titles & Questions
       for (const questionTitle of questionTitles) {
-        const questionTitleResponse = await apiClient.post("/api/question-titles/", {
-          title: questionTitle.title,
-          assignMarks: questionTitle.assignMarks,
-          paper: paperId,
-        });
+        await apiClient.put(`/api/question-titles/${questionTitle._id}`, questionTitle, { withCredentials: true });
 
-        const questionTitleId = questionTitleResponse.data.newQuestionTitle._id;
-
-        // Step 3: Create Questions for this Question Title
+        // Step 3: Update Questions
         for (const question of questionTitle.questions) {
-          await apiClient.post("/api/questions/", {
-            questionTitle: question.questionText,
-            answer: question.answer,
-            nlpRequired: question.nlpRequired,
-            questionTitleId: questionTitleId,
-          });
+          await apiClient.put(`/api/questions/${question._id}`, question, { withCredentials: true });
         }
       }
 
       // Show success alert
       Swal.fire({
         icon: "success",
-        title: "Paper Added!",
-        text: "The new question paper has been successfully created.",
+        title: "Paper Updated!",
+        text: "The question paper has been successfully updated.",
         showConfirmButton: false,
         timer: 2000,
       });
@@ -151,11 +125,11 @@ const AddPaper = () => {
       // Redirect after success
       setTimeout(() => navigate("/papers"), 2000);
     } catch (error) {
-      console.error("Error adding paper:", error);
+      console.error("Error updating paper:", error);
       Swal.fire({
         icon: "error",
-        title: "Failed!",
-        text: "An error occurred while adding the paper.",
+        title: "Update Failed!",
+        text: "An error occurred while updating the paper.",
         confirmButtonColor: "#d33",
       });
     } finally {
@@ -168,109 +142,62 @@ const AddPaper = () => {
       <CCol xs={12} md={12} lg={10} className="mx-auto">
         <CCard className="mb-4">
           <CCardHeader>
-            <strong>Add New Question Paper</strong>
+            <strong>Update Question Paper</strong>
           </CCardHeader>
           <CCardBody>
             <CForm onSubmit={handleSubmit}>
               {/* Paper Details */}
               <CFormInput type="text" name="paperTitle" placeholder="Paper Title" value={paper.paperTitle} onChange={handlePaperChange} required label="Paper Title" className="mb-3" />
               <CRow>
-                <CCol xs={12} lg={6}>
-                    <CFormInput
-                    type="number"
-                    name="recommendedAge"
-                    placeholder="Recommended Age"
-                    value={paper.recommendedAge}
-                    onChange={handlePaperChange}
-                    required
-                    label="Recommended Age"
-                    className="mb-3"
-                    />
+                <CCol xs={6}>
+                  <CFormInput type="number" name="recommendedAge" placeholder="Recommended Age" value={paper.recommendedAge} onChange={handlePaperChange} required label="Recommended Age" className="mb-3" />
                 </CCol>
-                <CCol xs={12} lg={6}>
-                    <CFormSelect
-                    name="difficultyLevel"
-                    value={paper.difficultyLevel}
-                    onChange={handlePaperChange}
-                    required
-                    label="Difficulty Level"
-                    className="mb-3"
-                    >
+                <CCol xs={6}>
+                  <CFormSelect name="difficultyLevel" value={paper.difficultyLevel} onChange={handlePaperChange} required label="Difficulty Level" className="mb-3">
                     <option value="">Select Difficulty Level</option>
                     {difficultyLevels.map((level) => (
-                        <option key={level._id} value={level._id}>
+                      <option key={level._id} value={level._id}>
                         {level.difficultyName}
-                        </option>
+                      </option>
                     ))}
-                    </CFormSelect>
+                  </CFormSelect>
                 </CCol>
               </CRow>
               <CRow>
-                <CCol xs={12} lg={6}>
-                    <CFormSelect
-                    name="categoryId"
-                    value={paper.categoryId}
-                    onChange={handlePaperChange}
-                    required
-                    label="Category"
-                    className="mb-3"
-                    >
+                <CCol xs={6}>
+                  <CFormSelect name="categoryId" value={paper.categoryId} onChange={handlePaperChange} required label="Category" className="mb-3">
                     <option value="">Select Category</option>
                     {categories.map((cat) => (
-                        <option key={cat._id} value={cat._id}>
+                      <option key={cat._id} value={cat._id}>
                         {cat.categoryName}
-                        </option>
+                      </option>
                     ))}
-                    </CFormSelect>
+                  </CFormSelect>
                 </CCol>
-                <CCol xs={12} lg={6}>
-                    <CFormInput type="number" 
-                    name="totalTime" 
-                    placeholder="Total Time (minutes)" 
-                    value={paper.totalTime} 
-                    onChange={handlePaperChange} 
-                    required label="Total Time (minutes)" 
-                    className="mb-3" />
+                <CCol xs={6}>
+                  <CFormInput type="number" name="totalTime" placeholder="Total Time (minutes)" value={paper.totalTime} onChange={handlePaperChange} required label="Total Time (minutes)" className="mb-3" />
                 </CCol>
               </CRow>
 
-
-              {/* Dynamic Question Titles */}
+              {/* Update Questions */}
               {questionTitles.map((qt, titleIndex) => (
                 <div key={titleIndex} className="border p-3 mb-3">
-                  <CFormInput type="text" name="title" placeholder="Question Title" value={qt.title} onChange={(e) => handleQuestionTitleChange(titleIndex, e)} required label="Question Title" />
-                  <CFormInput type="number" name="assignMarks" placeholder="Assign Marks" value={qt.assignMarks} onChange={(e) => handleQuestionTitleChange(titleIndex, e)} required label="Assign Marks" className="mb-2" />
-
-                  {/* Dynamic Questions */}
+                  <CFormInput type="text" name="title" placeholder="Question Title" value={qt.title} onChange={(e) => handleQuestionTitleChange(titleIndex, e)} required label="Question Title" className="mb-2" />
                   {qt.questions.map((q, questionIndex) => (
                     <div key={questionIndex} className="border p-2 mb-2">
                       <CFormInput type="text" name="questionText" placeholder="Question" value={q.questionText} onChange={(e) => handleQuestionChange(titleIndex, questionIndex, e)} required label="Question" />
-                      
                       <CFormInput type="text" name="answer" placeholder="Answer" value={q.answer} onChange={(e) => handleQuestionChange(titleIndex, questionIndex, e)} required label="Answer" />
-                      
                       <CFormSelect name="nlpRequired" value={q.nlpRequired} onChange={(e) => handleNlpChange(titleIndex, questionIndex, e)} required label="NLP Required">
                         <option value="0">No</option>
                         <option value="1">Yes</option>
                       </CFormSelect>
-                      
-                      <CButton color="danger" className="mt-2" onClick={() => removeQuestion(titleIndex, questionIndex)}>Remove Question</CButton>
                     </div>
                   ))}
-
-                  <CButton color="primary" onClick={() => addQuestion(titleIndex)}>Add Question</CButton>
-                  <CButton color="danger" className="ms-2" onClick={() => removeQuestionTitle(titleIndex)}>Remove Question Title</CButton>
                 </div>
               ))}
-            <CRow>
-                <CCol>
-                    <CButton color="success" onClick={addQuestionTitle}>Add Question Title</CButton>
-                </CCol>
-            </CRow>
-            <CRow>
-                <CCol>
-                    <CButton type="submit" color="success" disabled={loading} className="mt-3">{loading ? "Saving..." : "Submit"}</CButton>
-                </CCol>
-            </CRow>
+              <CButton type="submit" color="success" disabled={loading} className="mt-3">
+                {loading ? "Updating..." : "Update Paper"}
+              </CButton>
             </CForm>
           </CCardBody>
         </CCard>
@@ -279,4 +206,4 @@ const AddPaper = () => {
   );
 };
 
-export default AddPaper;
+export default UpdatePaper;

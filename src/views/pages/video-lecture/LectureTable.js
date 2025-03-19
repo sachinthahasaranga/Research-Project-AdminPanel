@@ -16,32 +16,31 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 import apiClient from '../../../api';
-import Swal from 'sweetalert2'; // Import SweetAlert2
-import '../../css/Usertable.css';
+import Swal from 'sweetalert2';
 
-const UserRoleTable = () => {
-  const [roles, setRoles] = useState([]);
+const LectureTable = () => {
+  const [lectures, setLectures] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchRoles();
+    fetchLectures();
   }, []);
 
-  // Fetch user roles from API
-  const fetchRoles = async () => {
+  // Fetch lectures from API
+  const fetchLectures = async () => {
     try {
-      const response = await apiClient.get('/api/user-roles/');
-      setRoles(response.data); // Store response data
+      const response = await apiClient.get('/api/video-lectures/');
+      setLectures(response.data);
     } catch (error) {
-      console.error('Error fetching roles:', error);
+      console.error('Error fetching lectures:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  // Delete role function
-  const handleDelete = async (roleId) => {
+  // Delete lecture function
+  const handleDelete = async (lectureId) => {
     Swal.fire({
       title: 'Are you sure?',
       text: 'This action cannot be undone!',
@@ -53,12 +52,12 @@ const UserRoleTable = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          await apiClient.delete(`/api/user-roles/${roleId}`);
-          Swal.fire('Deleted!', 'The role has been successfully deleted.', 'success');
-          fetchRoles(); // Refresh table after deletion
+          await apiClient.delete(`/api/video-lectures/${lectureId}`);
+          Swal.fire('Deleted!', 'The lecture has been successfully deleted.', 'success');
+          fetchLectures(); // Refresh table after deletion
         } catch (error) {
-          console.error('Error deleting role:', error);
-          Swal.fire('Error!', 'Failed to delete role.', 'error');
+          console.error('Error deleting lecture:', error);
+          Swal.fire('Error!', 'Failed to delete lecture.', 'error');
         }
       }
     });
@@ -70,45 +69,49 @@ const UserRoleTable = () => {
         <CCard className="mb-4">
           <CCardHeader className="d-flex justify-content-between align-items-center">
             <div>
-              <strong>Role Management</strong> <small>List of User Roles</small>
+              <strong>Lecture Management</strong> <small>List of Video Lectures</small>
             </div>
-            <CButton color="primary" onClick={() => navigate('/add-role')}>
-              + Add New Role
+            <CButton color="primary" onClick={() => navigate('/add-video-lecture')}>
+              + Add New Lecture
             </CButton>
           </CCardHeader>
           <CCardBody>
             {loading ? (
-              <p>Loading roles...</p>
+              <p>Loading lectures...</p>
             ) : (
               <CTable striped hover responsive>
                 <CTableHead>
                   <CTableRow>
                     <CTableHeaderCell scope="col">#</CTableHeaderCell>
-                    <CTableHeaderCell scope="col">Role Name</CTableHeaderCell>
-                    <CTableHeaderCell scope="col">Status</CTableHeaderCell>
-                    <CTableHeaderCell scope="col">Created At</CTableHeaderCell>
+                    <CTableHeaderCell scope="col">Lecture Title</CTableHeaderCell>
+                    <CTableHeaderCell scope="col">Thumbnail</CTableHeaderCell>
+                    <CTableHeaderCell scope="col">Category</CTableHeaderCell>
+                    <CTableHeaderCell scope="col">Difficulty</CTableHeaderCell>
+                    <CTableHeaderCell scope="col">Created By</CTableHeaderCell>
+                    <CTableHeaderCell scope="col">Total Time (min)</CTableHeaderCell>
                     <CTableHeaderCell scope="col">Actions</CTableHeaderCell>
                   </CTableRow>
                 </CTableHead>
                 <CTableBody>
-                  {roles.map((role, index) => (
-                    <CTableRow key={role._id}>
+                  {lectures.map((lecture, index) => (
+                    <CTableRow key={lecture._id}>
                       <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell>
-                      <CTableDataCell>{role.name}</CTableDataCell>
+                      <CTableDataCell>{lecture.lectureTitle}</CTableDataCell>
                       <CTableDataCell>
-                        <span className={role.status === 1 ? 'role-active' : 'role-inactive'}>
-                          {role.status === 1 ? 'Active' : 'Inactive'}
-                        </span>
+                        <img src={lecture.imgUrl} alt="Thumbnail" width="50" height="50" />
                       </CTableDataCell>
-                      <CTableDataCell>{new Date(role.createdAt).toLocaleDateString()}</CTableDataCell>
+                      <CTableDataCell>{lecture.categoryId?.categoryName || 'N/A'}</CTableDataCell>
+                      <CTableDataCell>{lecture.difficultyLevel?.difficultyName || 'N/A'}</CTableDataCell>
+                      <CTableDataCell>{lecture.createdBy?.username || 'N/A'}</CTableDataCell>
+                      <CTableDataCell>{lecture.totalTime}</CTableDataCell>
                       <CTableDataCell>
                         <FaEdit
                           style={{ cursor: 'pointer', color: 'gray', marginRight: '10px' }}
-                          onClick={() => navigate(`/update-role/${role._id}`)}
+                          onClick={() => navigate(`/update-lecture/${lecture._id}`)}
                         />
                         <FaTrash
                           style={{ cursor: 'pointer', color: 'red' }}
-                          onClick={() => handleDelete(role._id)}
+                          onClick={() => handleDelete(lecture._id)}
                         />
                       </CTableDataCell>
                     </CTableRow>
@@ -123,4 +126,4 @@ const UserRoleTable = () => {
   );
 };
 
-export default UserRoleTable;
+export default LectureTable;

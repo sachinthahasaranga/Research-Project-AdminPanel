@@ -16,32 +16,31 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 import apiClient from '../../../api';
-import Swal from 'sweetalert2'; // Import SweetAlert2
-import '../../css/Usertable.css';
+import Swal from 'sweetalert2';
 
-const UserRoleTable = () => {
-  const [roles, setRoles] = useState([]);
+const PaperTable = () => {
+  const [papers, setPapers] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchRoles();
+    fetchPapers();
   }, []);
 
-  // Fetch user roles from API
-  const fetchRoles = async () => {
+  // Fetch papers from API
+  const fetchPapers = async () => {
     try {
-      const response = await apiClient.get('/api/user-roles/');
-      setRoles(response.data); // Store response data
+      const response = await apiClient.get('/api/papers/');
+      setPapers(response.data);
     } catch (error) {
-      console.error('Error fetching roles:', error);
+      console.error('Error fetching papers:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  // Delete role function
-  const handleDelete = async (roleId) => {
+  // Delete paper function
+  const handleDelete = async (paperId) => {
     Swal.fire({
       title: 'Are you sure?',
       text: 'This action cannot be undone!',
@@ -53,12 +52,12 @@ const UserRoleTable = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          await apiClient.delete(`/api/user-roles/${roleId}`);
-          Swal.fire('Deleted!', 'The role has been successfully deleted.', 'success');
-          fetchRoles(); // Refresh table after deletion
+          await apiClient.delete(`/api/papers/${paperId}`);
+          Swal.fire('Deleted!', 'The paper has been successfully deleted.', 'success');
+          fetchPapers(); // Refresh table after deletion
         } catch (error) {
-          console.error('Error deleting role:', error);
-          Swal.fire('Error!', 'Failed to delete role.', 'error');
+          console.error('Error deleting paper:', error);
+          Swal.fire('Error!', 'Failed to delete paper.', 'error');
         }
       }
     });
@@ -70,45 +69,47 @@ const UserRoleTable = () => {
         <CCard className="mb-4">
           <CCardHeader className="d-flex justify-content-between align-items-center">
             <div>
-              <strong>Role Management</strong> <small>List of User Roles</small>
+              <strong>Paper Management</strong> <small>List of Question Papers</small>
             </div>
-            <CButton color="primary" onClick={() => navigate('/add-role')}>
-              + Add New Role
+            <CButton color="primary" onClick={() => navigate('/add-paper')}>
+              + Add New Paper
             </CButton>
           </CCardHeader>
           <CCardBody>
             {loading ? (
-              <p>Loading roles...</p>
+              <p>Loading papers...</p>
             ) : (
               <CTable striped hover responsive>
                 <CTableHead>
                   <CTableRow>
                     <CTableHeaderCell scope="col">#</CTableHeaderCell>
-                    <CTableHeaderCell scope="col">Role Name</CTableHeaderCell>
-                    <CTableHeaderCell scope="col">Status</CTableHeaderCell>
+                    <CTableHeaderCell scope="col">Paper Title</CTableHeaderCell>
+                    <CTableHeaderCell scope="col">Recommended Age</CTableHeaderCell>
+                    <CTableHeaderCell scope="col">Difficulty Level</CTableHeaderCell>
+                    <CTableHeaderCell scope="col">Category</CTableHeaderCell>
+                    <CTableHeaderCell scope="col">Total Time (min)</CTableHeaderCell>
                     <CTableHeaderCell scope="col">Created At</CTableHeaderCell>
                     <CTableHeaderCell scope="col">Actions</CTableHeaderCell>
                   </CTableRow>
                 </CTableHead>
                 <CTableBody>
-                  {roles.map((role, index) => (
-                    <CTableRow key={role._id}>
+                  {papers.map((paper, index) => (
+                    <CTableRow key={paper._id}>
                       <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell>
-                      <CTableDataCell>{role.name}</CTableDataCell>
-                      <CTableDataCell>
-                        <span className={role.status === 1 ? 'role-active' : 'role-inactive'}>
-                          {role.status === 1 ? 'Active' : 'Inactive'}
-                        </span>
-                      </CTableDataCell>
-                      <CTableDataCell>{new Date(role.createdAt).toLocaleDateString()}</CTableDataCell>
+                      <CTableDataCell>{paper.paperTitle}</CTableDataCell>
+                      <CTableDataCell>{paper.recommendedAge}</CTableDataCell>
+                      <CTableDataCell>{paper.difficultyLevel?.difficultyName || 'N/A'}</CTableDataCell>
+                      <CTableDataCell>{paper.categoryId?.categoryName || 'N/A'}</CTableDataCell>
+                      <CTableDataCell>{paper.totalTime}</CTableDataCell>
+                      <CTableDataCell>{new Date(paper.createdAt).toLocaleDateString()}</CTableDataCell>
                       <CTableDataCell>
                         <FaEdit
                           style={{ cursor: 'pointer', color: 'gray', marginRight: '10px' }}
-                          onClick={() => navigate(`/update-role/${role._id}`)}
+                          onClick={() => navigate(`/update-paper/${paper._id}`)}
                         />
                         <FaTrash
                           style={{ cursor: 'pointer', color: 'red' }}
-                          onClick={() => handleDelete(role._id)}
+                          onClick={() => handleDelete(paper._id)}
                         />
                       </CTableDataCell>
                     </CTableRow>
@@ -123,4 +124,4 @@ const UserRoleTable = () => {
   );
 };
 
-export default UserRoleTable;
+export default PaperTable;

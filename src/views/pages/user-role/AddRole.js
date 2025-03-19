@@ -1,48 +1,46 @@
-import React, { useState } from 'react'
-import { CCard, CCardBody, CCardHeader, CCol, CRow, CForm, CFormInput, CButton } from '@coreui/react'
-import { useNavigate } from 'react-router-dom'
-import apiClient from '../../../api'
-import Swal from 'sweetalert2' // Import SweetAlert2
+import React, { useState } from 'react';
+import { CCard, CCardBody, CCardHeader, CCol, CRow, CForm, CFormInput, CButton } from '@coreui/react';
+import { useNavigate } from 'react-router-dom';
+import apiClient from '../../../api';
+import Swal from 'sweetalert2'; // Import SweetAlert2
 
 const AddRole = () => {
-  const [roleName, setRoleName] = useState('')
-  const [loading, setLoading] = useState(false)
-  const navigate = useNavigate()
+  const [roleName, setRoleName] = useState('');
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = async (event) => {
-    event.preventDefault()
-    setLoading(true)
+    event.preventDefault();
+    setLoading(true);
 
     try {
-      await apiClient.post('/api/roles/add', { rolename: roleName } , {withCredentials: true})
-      
+      await apiClient.post('/api/user-roles', { name: roleName, status: 1 });
+
       // Show success alert
       Swal.fire({
         icon: 'success',
         title: 'Role Added!',
         text: 'The new role has been added successfully.',
         showConfirmButton: false,
-        timer: 2000 // Auto-close after 2 seconds
-      })
+        timer: 2000, // Auto-close after 2 seconds
+      });
 
       // Redirect after delay
-      setTimeout(() => navigate('/user-role-management'), 2000)
-
+      setTimeout(() => navigate('/user-role-management'), 2000);
     } catch (error) {
-      console.error('Error adding role:', error)
-      
+      console.error('Error adding role:', error);
+
       // Show error alert
       Swal.fire({
         icon: 'error',
         title: 'Failed!',
         text: 'Error occurred while adding the role.',
-        confirmButtonColor: '#d33'
-      })
-      
+        confirmButtonColor: '#d33',
+      });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <CRow>
@@ -75,7 +73,7 @@ const AddRole = () => {
         </CCard>
       </CCol>
     </CRow>
-  )
-}
+  );
+};
 
-export default AddRole
+export default AddRole;
