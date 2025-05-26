@@ -9,7 +9,6 @@ const apiClient = axios.create({
   },
 });
 
-// Function to set the Authorization token dynamically
 export const setAuthToken = (token) => {
   if (token) {
     apiClient.defaults.headers["Authorization"] = `Bearer ${token}`;

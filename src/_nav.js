@@ -130,7 +130,7 @@ const getNavItems = () => {
       ],
     },
 
-    //Raw Materials
+    
     {
       component: CNavGroup,
       name: 'categories',
@@ -146,6 +146,26 @@ const getNavItems = () => {
           component: CNavItem,
           name: 'Category Lists',
           to: '/categorylist',
+        },
+        
+      ],
+    },
+
+    {
+      component: CNavGroup,
+      name: 'Readings',
+      to: '/mattressSettings',
+      icon: <FaClipboardList className="me-2" />,
+      items: [
+        {
+          component: CNavItem,
+          name: 'Add Reading',
+          to: '/add-reading',
+        },
+        {
+          component: CNavItem,
+          name: 'Reading Lists',
+          to: '/reading-list',
         },
         
       ],
