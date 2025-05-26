@@ -27,7 +27,7 @@ const AddPaper = () => {
     { title: "", assignMarks: "", questions: [{ questionText: "", answer: "", nlpRequired: 0 }] },
   ]);
 
-  const [difficultyLevels, setDifficultyLevels] = useState([]); // Store difficulty levels
+  const [difficultyLevels, setDifficultyLevels] = useState([]);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const [categories, setCategory] = useState([]);
@@ -50,7 +50,8 @@ const AddPaper = () => {
   const fetchCategory = async () => {
     try {
       const response = await apiClient.get("/api/ctgry/");
-      setCategory(response.data);
+      const filteredCategories = response.data.filter(category => category.categoryType === "paper");
+      setCategory(filteredCategories);
     } catch (error) {
       console.error("Error fetching difficulty levels:", error);
     }
@@ -149,7 +150,7 @@ const AddPaper = () => {
       });
 
       // Redirect after success
-      setTimeout(() => navigate("/papers"), 2000);
+      setTimeout(() => navigate("/paperlist"), 2000);
     } catch (error) {
       console.error("Error adding paper:", error);
       Swal.fire({

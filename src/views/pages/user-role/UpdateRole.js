@@ -11,12 +11,12 @@ const UpdateRole = () => {
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
 
-  // Fetch existing role data
+  // Fetch existing role data using new endpoint
   useEffect(() => {
     const fetchRole = async () => {
       try {
-        const response = await apiClient.get(`/api/roles/${id}`, {withCredentials: true})
-        setRoleName(response.data.rolename)
+        const response = await apiClient.get(`/api/user-roles/${id}`)
+        setRoleName(response.data.name)
         setStatus(response.data.status)
       } catch (error) {
         console.error('Error fetching role:', error)
@@ -31,7 +31,8 @@ const UpdateRole = () => {
     setLoading(true)
 
     try {
-      await apiClient.put(`/api/roles/update/${id}`, { rolename: roleName, status: Number(status) }, {withCredentials: true})
+      // Update role using new API endpoint and payload structure
+      await apiClient.put(`/api/user-roles/${id}`, { name: roleName, status: Number(status) })
 
       // Show success alert
       Swal.fire({
