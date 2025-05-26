@@ -2,11 +2,6 @@ import React from 'react'
 
 const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
 
-const UserTable = React.lazy(() => import('./views/pages/user/UserTable'))
-const AddUser = React.lazy(() => import('./views/pages/user/AddUser'))
-const UpdateUser = React.lazy(() => import('./views/pages/user/UpdateUser'))
-
-
 //----------------------------------------------------------------------------------------------
 const UserRouteTable = React.lazy(() => import('./views/pages/user-role/UserRouteTable'))
 const AddRole = React.lazy(() => import('./views/pages/user-role/AddRole'))
@@ -37,11 +32,6 @@ const routes = [
   { path: '/user-role-management', name: 'User Role Management', element: UserRouteTable },
   { path: '/add-role', name: 'Add New User Role', element: AddRole },
   { path: '/update-role/:id', name: 'User Role Update', element: UpdateRole },
-
-  { path: '/user-management', name: 'User Management', element: UserTable },
-  { path: '/add-user', name: 'Add New User', element: AddUser },
-  { path: '/update-user/:id', name: 'Update User', element: UpdateUser },
-
 
 
   { path: '/add-video-lecture', name: 'Add Video Lecture', element: AddVideoLecture },
