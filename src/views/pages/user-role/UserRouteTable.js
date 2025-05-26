@@ -17,7 +17,7 @@ import { useNavigate } from 'react-router-dom';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 import apiClient from '../../../api';
 import Swal from 'sweetalert2'; // Import SweetAlert2
-import '../../css/Usertable.css';
+import '../../css/UserTable.css';
 
 const UserRoleTable = () => {
   const [roles, setRoles] = useState([]);
