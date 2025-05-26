@@ -154,7 +154,7 @@ const getNavItems = () => {
     {
       component: CNavGroup,
       name: 'Readings',
-      to: '/mattressSettings',
+      to: '#',
       icon: <FaClipboardList className="me-2" />,
       items: [
         {
@@ -166,6 +166,20 @@ const getNavItems = () => {
           component: CNavItem,
           name: 'Reading Lists',
           to: '/reading-list',
+        },
+        
+      ],
+    },
+    {
+      component: CNavGroup,
+      name: 'Feedbacks',
+      to: '#',
+      icon: <FaClipboardList className="me-2" />,
+      items: [
+        {
+          component: CNavItem,
+          name: 'Feedback Lists',
+          to: '/feedback-list',
         },
         
       ],

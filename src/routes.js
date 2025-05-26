@@ -24,6 +24,8 @@ const AddReading = React.lazy(() => import('./views/pages/reading/AddReading'))
 const ReadingList = React.lazy(() => import('./views/pages/reading/ReadingTable'))
 const UpdateReadingList = React.lazy(() => import('./views/pages/reading/UpdateReading'))
 
+const FeedbackList = React.lazy(() => import('./views/pages/feedback/FeedbackTable'))
+
 
 const routes = [
   { path: '/', exact: true, name: 'Home' },
@@ -50,6 +52,8 @@ const routes = [
   { path: '/add-reading', name: 'Add Reading', element: AddReading },
   { path: '/reading-list', name: 'Reading List', element: ReadingList },
   { path: '/update-reading/:id', name: 'Update Category', element: UpdateReadingList },
+
+  { path: '/feedback-list', name: 'Reading List', element: FeedbackList },
 
 
 ]

@@ -63,12 +63,19 @@ const Login = () => {
   };
 
   return (
-    <div className="bg-body-tertiary min-vh-100 d-flex flex-row align-items-center">
+    <div className="bg-body-tertiary min-vh-100 d-flex flex-row align-items-center"
+      style={{
+        backgroundImage: `url('/images/11774.jpg')`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+      }}
+    >
       <CContainer>
         <CRow className="justify-content-center">
           <CCol md={6}>
             <CCardGroup>
-              <CCard className="p-4">
+              <CCard className="p-4" style={{ backgroundColor: 'rgba(255, 255, 255, 0.57)', borderRadius: '8px' }}>
                 <CCardBody>
                   <CForm onSubmit={handleSubmit}>
                     <h1>Login</h1>
@@ -110,11 +117,11 @@ const Login = () => {
                           Login
                         </CButton>
                       </CCol>
-                      <CCol xs={6} className="text-right">
+                      {/* <CCol xs={6} className="text-right">
                         <CButton color="link" className="px-0" onClick={() => navigate('/register')}>
                           Don't have an account? Sign-Up
                         </CButton>
-                      </CCol>
+                      </CCol> */}
                     </CRow>
 
                   </CForm>
